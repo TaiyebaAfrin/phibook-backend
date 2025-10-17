@@ -95,6 +95,7 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'backend.wsgi.app'
 
 
@@ -119,6 +120,8 @@ DATABASES = {
         'PORT': config('port')
     }
 }
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

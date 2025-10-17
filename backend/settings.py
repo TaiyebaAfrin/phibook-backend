@@ -15,7 +15,13 @@ SECRET_KEY = 'django-insecure-nfzm9aiuu1-hpi7l2i(x^+9817!l+*d!35dhd_k8cl@5zqw*qf
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+# DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+
+IS_VERCEL = os.environ.get('VERCEL') is not None
+
+# Debug settings
+DEBUG = not IS_VERCEL
+
 
 
 ALLOWED_HOSTS = [".vercel.app", "127.0.0.1", "https://phibook-backend.vercel.app", "https://phibook-frontend.vercel.app"]
@@ -148,8 +154,7 @@ DATABASES = {
         'HOST': os.environ.get('host'),
         'PORT': os.environ.get('port', '5432'),
         'OPTIONS': {
-                'connect_timeout': 10,
-                'sslmode': 'require',  # Add this for Supabase
+                'sslmode': 'disable',
             },
     }
 }

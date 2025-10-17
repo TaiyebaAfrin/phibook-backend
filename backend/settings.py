@@ -14,7 +14,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-nfzm9aiuu1-hpi7l2i(x^+9817!l+*d!35dhd_k8cl@5zqw*qf'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+print(f"Final DEBUG value: {DEBUG}")
 
 ALLOWED_HOSTS = [".vercel.app", "127.0.0.1", "https://phibook-backend.vercel.app"]
 

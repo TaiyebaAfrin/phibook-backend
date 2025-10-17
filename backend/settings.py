@@ -110,16 +110,31 @@ WSGI_APPLICATION = 'backend.wsgi.app'
 # }
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': config('dbname'),
+#         'USER': config('user'),
+#         'PASSWORD': config('password'),
+#         'HOST': config('host'),
+#         'PORT': config('port')
+#     }
+# }
+
+
+
+# Temporary fix - replace the database config section
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('dbname'),
-        'USER': config('user'),
-        'PASSWORD': config('password'),
-        'HOST': config('host'),
-        'PORT': config('port')
+        'NAME': os.environ.get('dbname', 'postgres'),
+        'USER': os.environ.get('user', 'postgres.agbbmtluwdiixmqwjhej'),
+        'PASSWORD': os.environ.get('password', 'fdfrwWW123er$$$WE'),
+        'HOST': os.environ.get('host', 'aws-1-us-east-1.pooler.supabase.com'),
+        'PORT': os.environ.get('port', '5432'),
     }
 }
+
 
 
 
@@ -148,10 +163,18 @@ AUTH_PASSWORD_VALIDATORS = [
 #cloudinary Configuration
 
 
+# cloudinary.config(
+#     cloud_name=config('cloud_name'),
+#     api_key=config('cloudinary_api_key'),
+#     api_secret=config('api_secret'),
+#     secure=True
+# )
+
+
 cloudinary.config(
-    cloud_name=config('cloud_name'),
-    api_key=config('cloudinary_api_key'),
-    api_secret=config('api_secret'),
+    cloud_name=os.environ.get('cloud_name', 'dgumbh4a9'),
+    api_key=os.environ.get('cloudinary_api_key', '523797784699343'),
+    api_secret=os.environ.get('api_secret', '7_GEvn1f55gImfDZw7qmki56LrE'),
     secure=True
 )
 

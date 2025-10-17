@@ -15,8 +15,8 @@ SECRET_KEY = 'django-insecure-nfzm9aiuu1-hpi7l2i(x^+9817!l+*d!35dhd_k8cl@5zqw*qf
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-# DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+
 
 ALLOWED_HOSTS = [".vercel.app", "127.0.0.1", "https://phibook-backend.vercel.app", "https://phibook-frontend.vercel.app"]
 

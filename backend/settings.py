@@ -1,7 +1,8 @@
 from pathlib import Path
 import os
-from decouple import config
 import cloudinary
+
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -15,16 +16,10 @@ SECRET_KEY = 'django-insecure-nfzm9aiuu1-hpi7l2i(x^+9817!l+*d!35dhd_k8cl@5zqw*qf
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-# DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-
-IS_VERCEL = os.environ.get('VERCEL') is not None
-
-# Debug settings
-DEBUG = not IS_VERCEL
+DEBUG = True
 
 
-
-ALLOWED_HOSTS = [".vercel.app", "127.0.0.1", "https://phibook-backend.vercel.app", "https://phibook-frontend.vercel.app"]
+ALLOWED_HOSTS = [".vercel.app", "127.0.0.1"]
 
 
 AUTH_USER_MODEL = 'base.MyUser'
@@ -76,9 +71,7 @@ MIDDLEWARE = [
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "https://phibook-backend.vercel.app",
-    "https://phibook-frontend.vercel.app",
+    "http://localhost:3000"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -105,18 +98,18 @@ TEMPLATES = [
 ]
 
 
-WSGI_APPLICATION = 'backend.wsgi.app'
+WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 # DATABASES = {
@@ -129,35 +122,6 @@ WSGI_APPLICATION = 'backend.wsgi.app'
 #         'PORT': config('port'),
 #     }
 # }
-
-
-
-# # Temporary fix - replace the database config section
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get('dbname', 'postgres'),
-#         'USER': os.environ.get('user', 'postgres.agbbmtluwdiixmqwjhej'),
-#         'PASSWORD': os.environ.get('password', 'fdfrwWW123er$$$WE'),
-#         'HOST': os.environ.get('host', 'aws-1-us-east-1.pooler.supabase.com'),
-#         'PORT': os.environ.get('port', '5432'),
-#     }
-# }
-
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('dbname'),
-        'USER': os.environ.get('user'),
-        'PASSWORD': os.environ.get('password'),
-        'HOST': os.environ.get('host'),
-        'PORT': os.environ.get('port', '5432'),
-        'OPTIONS': {
-                'sslmode': 'disable',
-            },
-    }
-}
 
 
 
@@ -194,12 +158,12 @@ AUTH_PASSWORD_VALIDATORS = [
 # )
 
 
-cloudinary.config(
-    cloud_name=os.environ.get('cloud_name', 'dgumbh4a9'),
-    api_key=os.environ.get('cloudinary_api_key', '523797784699343'),
-    api_secret=os.environ.get('api_secret', '7_GEvn1f55gImfDZw7qmki56LrE'),
-    secure=True
-)
+# cloudinary.config(
+#     cloud_name=os.environ.get('cloud_name', 'dgumbh4a9'),
+#     api_key=os.environ.get('cloudinary_api_key', '523797784699343'),
+#     api_secret=os.environ.get('api_secret', '7_GEvn1f55gImfDZw7qmki56LrE'),
+#     secure=True
+# )
 
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
@@ -230,10 +194,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = config('EMAIL_HOST')
-# EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
-# EMAIL_PORT = config('EMAIL_PORT')
-# EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')

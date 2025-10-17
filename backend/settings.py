@@ -147,6 +147,10 @@ DATABASES = {
         'PASSWORD': os.environ.get('password'),
         'HOST': os.environ.get('host'),
         'PORT': os.environ.get('port', '5432'),
+        'OPTIONS': {
+                'connect_timeout': 10,
+                'sslmode': 'require',  # Add this for Supabase
+            },
     }
 }
 

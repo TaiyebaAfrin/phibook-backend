@@ -125,18 +125,34 @@ WSGI_APPLICATION = 'backend.wsgi.app'
 
 
 
-# Temporary fix - replace the database config section
+# # Temporary fix - replace the database config section
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('dbname', 'postgres'),
+#         'USER': os.environ.get('user', 'postgres.agbbmtluwdiixmqwjhej'),
+#         'PASSWORD': os.environ.get('password', 'fdfrwWW123er$$$WE'),
+#         'HOST': os.environ.get('host', 'aws-1-us-east-1.pooler.supabase.com'),
+#         'PORT': os.environ.get('port', '5432'),
+#     }
+# }
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('dbname', 'postgres'),
-        'USER': os.environ.get('user', 'postgres.agbbmtluwdiixmqwjhej'),
-        'PASSWORD': os.environ.get('password', 'fdfrwWW123er$$$WE'),
-        'HOST': os.environ.get('host', 'aws-1-us-east-1.pooler.supabase.com'),
+        'NAME': os.environ.get('dbname'),
+        'USER': os.environ.get('user'),
+        'PASSWORD': os.environ.get('password'),
+        'HOST': os.environ.get('host'),
         'PORT': os.environ.get('port', '5432'),
+        'CONN_MAX_AGE': 600,
+        'OPTIONS': {
+            'connect_timeout': 10,
+            'sslmode': 'require',
+        }
     }
 }
-
 
 
 

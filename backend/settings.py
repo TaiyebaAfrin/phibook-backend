@@ -150,13 +150,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # }
 
 
-#support
-DATABASES = {
-    'default': dj_database_url.config( default="user=postgres.gmjfcwlvzssmrmemciat password=NkvVEW9hzsK5z3iC host=aws-1-us-east-1.pooler.supabase.com port=6543 dbname=postgres",
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
+
 
 # DATABASES = {
 #     'default': {
@@ -174,6 +168,17 @@ DATABASES = {
 #     }
 # }
 
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres.gmjfcwlvzssmrmemciat',
+        'PASSWORD': 'NkvVEW9hzsK5z3iC',
+        'HOST': 'aws-1-us-east-1.pooler.supabase.com',
+        'PORT': '6543',
+    }
+}
 
 
 # Password validation

@@ -1,8 +1,10 @@
 from pathlib import Path
 import os
-import cloudinary
+#import cloudinary
+#from decouple import config
+import dj_database_url
 
-from decouple import config
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -15,6 +17,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-nfzm9aiuu1-hpi7l2i(x^+9817!l+*d!35dhd_k8cl@5zqw*qf'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('SUPABASE_DB_NAME'),
+#         'USER': os.environ.get('SUPABASE_DB_USER'),
+#         'PASSWORD': os.environ.get('SUPABASE_DB_PASSWORD'),
+#         'HOST': os.environ.get('SUPABASE_DB_HOST'),
+#         'PORT': os.environ.get('SUPABASE_DB_PORT', '5432'),
+#     }
+# }
+
+
+
 
 DEBUG = True
 
@@ -71,7 +88,7 @@ MIDDLEWARE = [
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000"
+    "http://localhost:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -104,11 +121,22 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+
+
+# Read from environment variable
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 

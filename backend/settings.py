@@ -1,7 +1,7 @@
 from pathlib import Path
 import os
 #import cloudinary
-#from decouple import config
+from decouple import config
 import dj_database_url
 
 
@@ -33,7 +33,7 @@ SECRET_KEY = 'django-insecure-nfzm9aiuu1-hpi7l2i(x^+9817!l+*d!35dhd_k8cl@5zqw*qf
 
 
 
-DEBUG = True
+DEBUG = False
 
 
 ALLOWED_HOSTS = [".vercel.app", "127.0.0.1"]
@@ -130,24 +130,30 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 
-# Read from environment variable
+# # Read from environment variable
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default=os.environ.get('DATABASE_URL'),
+#         conn_max_age=600,
+#         conn_health_checks=True,
+#     )
+# }
+
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
+    'default': dj_database_url.config( default="postgresql://postgres:NkvVEW9hzsK5z3iC@db.gmjfcwlvzssmrmemciat.supabase.co:5432/postgres",
         conn_max_age=600,
-        conn_health_checks=True,
+        ssl_require=True
     )
 }
-
 
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': config('dbname'),
-#         'USER': config('user'),
-#         'PASSWORD': config('password'),
-#         'HOST': config('host'),
-#         'PORT': config('port'),
+#         'NAME': 'postgres',
+#         'USER': "postgres",
+#         'PASSWORD': 'fdfrwWW123er$$$WE',
+#         'HOST': 'db.rstgzotnrgtpdmbyjzam.supabase.co',
+#         'PORT': 5432,
 #     }
 # }
 

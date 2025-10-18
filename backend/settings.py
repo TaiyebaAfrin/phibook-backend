@@ -142,28 +142,28 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 #support
-# DATABASES = {
-#     'default': dj_database_url.config( default="postgresql://postgres:NkvVEW9hzsK5z3iC@db.gmjfcwlvzssmrmemciat.supabase.co:5432/postgres",
-#         conn_max_age=600,
-#         ssl_require=True
-#     )
-# }
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': "postgres",
-        'PASSWORD': 'NkvVEW9hzsK5z3iC',
-        'HOST': 'db.gmjfcwlvzssmrmemciat.supabase.co',
-        'PORT': 5432,
-        'OPTIONS': {
-            'sslmode': 'require',
-            'sslmode': 'verify-full',
-        },
-        'CONN_MAX_AGE': 600,  # Helpful for serverless
-    }
+    'default': dj_database_url.config( default="postgresql://postgres:NkvVEW9hzsK5z3iC@db.gmjfcwlvzssmrmemciat.supabase.co:5432/postgres",
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',
+#         'USER': "postgres",
+#         'PASSWORD': 'NkvVEW9hzsK5z3iC',
+#         'HOST': 'db.gmjfcwlvzssmrmemciat.supabase.co',
+#         'PORT': 5432,
+#         'OPTIONS': {
+#             'sslmode': 'require',
+#             'sslmode': 'verify-full',
+#         },
+#         'CONN_MAX_AGE': 600,  # Helpful for serverless
+#     }
+# }
 
 
 

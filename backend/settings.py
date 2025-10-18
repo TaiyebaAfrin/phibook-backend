@@ -157,7 +157,11 @@ DATABASES = {
         'PASSWORD': 'NkvVEW9hzsK5z3iC',
         'HOST': 'db.gmjfcwlvzssmrmemciat.supabase.co',
         'PORT': 5432,
-        'OPTIONS': {'sslmode': 'require'},
+        'OPTIONS': {
+            'sslmode': 'require',
+            'sslmode': 'verify-full',
+        },
+        'CONN_MAX_AGE': 600,  # Helpful for serverless
     }
 }
 

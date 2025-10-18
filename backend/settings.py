@@ -33,7 +33,7 @@ SECRET_KEY = 'django-insecure-nfzm9aiuu1-hpi7l2i(x^+9817!l+*d!35dhd_k8cl@5zqw*qf
 
 
 
-DEBUG = True
+DEBUG = False
 
 
 ALLOWED_HOSTS = [".vercel.app", "127.0.0.1", 'https://phibook-backend.vercel.app',]
@@ -89,7 +89,6 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    '.vercel.app',
     'https://phibook-backend.vercel.app',
 ]
 
@@ -141,23 +140,25 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 #     )
 # }
 
-DATABASES = {
-    'default': dj_database_url.config( default="postgresql://postgres:NkvVEW9hzsK5z3iC@db.gmjfcwlvzssmrmemciat.supabase.co:5432/postgres",
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
 
+#support
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'postgres',
-#         'USER': "postgres",
-#         'PASSWORD': 'fdfrwWW123er$$$WE',
-#         'HOST': 'db.rstgzotnrgtpdmbyjzam.supabase.co',
-#         'PORT': 5432,
-#     }
+#     'default': dj_database_url.config( default="postgresql://postgres:NkvVEW9hzsK5z3iC@db.gmjfcwlvzssmrmemciat.supabase.co:5432/postgres",
+#         conn_max_age=600,
+#         ssl_require=True
+#     )
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': "postgres",
+        'PASSWORD': 'NkvVEW9hzsK5z3iC',
+        'HOST': 'db.gmjfcwlvzssmrmemciat.supabase.co',
+        'PORT': 5432,
+    }
+}
 
 
 

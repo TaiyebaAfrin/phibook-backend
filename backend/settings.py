@@ -36,7 +36,7 @@ SECRET_KEY = 'django-insecure-nfzm9aiuu1-hpi7l2i(x^+9817!l+*d!35dhd_k8cl@5zqw*qf
 DEBUG = False
 
 
-ALLOWED_HOSTS = [".vercel.app", "127.0.0.1"]
+ALLOWED_HOSTS = [".vercel.app", "127.0.0.1", 'https://phibook-backend.vercel.app',]
 
 
 AUTH_USER_MODEL = 'base.MyUser'
@@ -89,6 +89,8 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    '.vercel.app',
+    'https://phibook-backend.vercel.app',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -115,7 +117,7 @@ TEMPLATES = [
 ]
 
 
-WSGI_APPLICATION = 'backend.wsgi.app'
+WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 # Database

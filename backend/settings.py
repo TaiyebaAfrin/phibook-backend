@@ -207,15 +207,20 @@ AUTH_PASSWORD_VALIDATORS = [
 #cloudinary Configuration
 
 
+# cloudinary.config(
+#     cloud_name=config('cloud_name'),
+#     api_key=config('cloudinary_api_key'),
+#     api_secret=config('api_secret'),
+#     secure=True
+# )
+
+
 cloudinary.config(
-    cloud_name=config('cloud_name'),
-    api_key=config('cloudinary_api_key'),
-    api_secret=config('api_secret'),
+    cloud_name=os.environ.get('cloud_name', 'dgumbh4a9'),
+    api_key=os.environ.get('cloudinary_api_key', '523797784699343'),
+    api_secret=os.environ.get('api_secret', '7_GEvn1f55gImfDZw7qmki56LrE'),
     secure=True
 )
-
-
-
 
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'

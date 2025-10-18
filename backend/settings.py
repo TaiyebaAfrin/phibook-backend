@@ -141,9 +141,18 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # }
 
 
+# #support
+# DATABASES = {
+#     'default': dj_database_url.config( default="postgresql://postgres:NkvVEW9hzsK5z3iC@db.gmjfcwlvzssmrmemciat.supabase.co:5432/postgres",
+#         conn_max_age=600,
+#         ssl_require=True
+#     )
+# }
+
+
 #support
 DATABASES = {
-    'default': dj_database_url.config( default="postgresql://postgres:NkvVEW9hzsK5z3iC@db.gmjfcwlvzssmrmemciat.supabase.co:5432/postgres",
+    'default': dj_database_url.config( default="user=postgres.gmjfcwlvzssmrmemciat password=NkvVEW9hzsK5z3iC host=aws-1-us-east-1.pooler.supabase.com port=6543 dbname=postgres",
         conn_max_age=600,
         ssl_require=True
     )
@@ -153,10 +162,10 @@ DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
 #         'NAME': 'postgres',
-#         'USER': "postgres",
+#         'USER': "postgres.gmjfcwlvzssmrmemciat",
 #         'PASSWORD': 'NkvVEW9hzsK5z3iC',
-#         'HOST': 'db.gmjfcwlvzssmrmemciat.supabase.co',
-#         'PORT': 5432,
+#         'HOST': 'aws-1-us-east-1.pooler.supabase.com',
+#         'PORT': 6543,
 #         'OPTIONS': {
 #             'sslmode': 'require',
 #             'sslmode': 'verify-full',

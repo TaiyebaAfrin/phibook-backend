@@ -1,6 +1,8 @@
 from pathlib import Path
 import os
 import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 from decouple import config
 import dj_database_url
 
@@ -56,12 +58,28 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
     'rest_framework_simplejwt',
     'base'
 ]
+
+
+# Cloudinary configuration
+cloudinary.config(
+    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME', 'dgumbh4a9'),
+    api_key=os.environ.get('CLOUDINARY_API_KEY', '523797784699343'),
+    api_secret=os.environ.get('CLOUDINARY_API_SECRET', '7_GEvn1f55gImfDZw7qmki56LrE'),
+    secure=True
+)
+
+# Set Cloudinary as the default file storage
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+
 
 
 REST_FRAMEWORK = {

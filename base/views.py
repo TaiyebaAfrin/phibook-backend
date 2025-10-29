@@ -1,22 +1,25 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .models import MyUser, Post, Comment
-from .serializers import (
-    MyUserProfileSerializer, 
-    UserRegisterSerializer, 
-    PostSerializer, 
-    UserSerializer,
-    CommentSerializer
+from rest_framework.pagination import PageNumberPagination
+
+
+from .models import MyUser, Post
+from .serializers import MyUserProfileSerializer, UserRegisterSerializer, PostSerializer, UserSerializer
+
+
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
 )
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def auhtenticated(request):
     return Response('authenticated!')
+    
 
 @api_view(['POST'])
 def register(request):
@@ -25,9 +28,10 @@ def register(request):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors)
-
+    
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
+        
         try:
             response = super().post(request, *args, **kwargs)
             tokens = response.data
@@ -43,16 +47,15 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
             res = Response()
 
-            res.data = {
-                "success": True,
-                "user": {
-                    "username": user.username,
-                    "bio": user.bio,
-                    "email": user.email,
-                    "first_name": user.first_name,
-                    "last_name": user.last_name
-                }
-            }
+            res.data = {"success":True,
+                        "user": {
+                            "username":user.username,
+                            "bio":user.bio,
+                            "email":user.email,
+                            "first_name": user.first_name,
+                            "last_name":user.last_name
+                            }
+                        }
 
             res.set_cookie(
                 key='access_token',
@@ -74,63 +77,25 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
             return res
         
-        except Exception as e:
-            return Response({'success': False, 'error': str(e)})
-
-# class CustomTokenRefreshView(TokenRefreshView):
-#     def post(self, request, *args, **kwargs):
-#         try:
-#             refresh_token = request.COOKIES.get('refresh_token')
-#             request.data['refresh'] = refresh_token
-
-#             response = super().post(request, *args, **kwargs)
-#             tokens = response.data
-
-#             access_token = tokens['access']
-            
-#             res = Response()
-
-#             res.data = {
-#                 "success": True
-#             }
-
-#             res.set_cookie(
-#                 key='access_token',
-#                 value=access_token,
-#                 httponly=True,
-#                 secure=True,
-#                 samesite='None',
-#                 path='/'
-#             )
-
-#             return res
-#         except Exception as e:
-#             return Response({'success': False, 'error': str(e)})
-
-
+        except:
+            return Response({'success':False})
+        
 class CustomTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
+            
         try:
             refresh_token = request.COOKIES.get('refresh_token')
-            
-            if not refresh_token:
-                return Response({'success': False, 'error': 'No refresh token provided'}, status=401)
-            
-            # Set the refresh token in request data
             request.data['refresh'] = refresh_token
 
             response = super().post(request, *args, **kwargs)
-            
-            if response.status_code != 200:
-                return Response({'success': False, 'error': 'Token refresh failed'}, status=401)
-                
             tokens = response.data
+
             access_token = tokens['access']
             
             res = Response()
+
             res.data = {
-                "success": True,
-                "message": "Token refreshed successfully"
+                "success":True
             }
 
             res.set_cookie(
@@ -138,17 +103,14 @@ class CustomTokenRefreshView(TokenRefreshView):
                 value=access_token,
                 httponly=True,
                 secure=True,
-                samesite='Lax',
-                path='/',
-                max_age=60 * 60,  # 1 hour
+                samesite='None',
+                path='/'
             )
 
             return res
-        except Exception as e:
-            return Response({'success': False, 'error': str(e)}, status=401)
-
-
-
+        except:
+            return Response({'success':False})
+   
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_profile_data(request, pk):
@@ -166,9 +128,9 @@ def get_user_profile_data(request, pk):
             following = True
 
         return Response({**serializer.data, 'is_our_profile': request.user.username == user.username, 'following':following})
-    except Exception as e:
-        return Response({'error': f'error getting user data: {str(e)}'})
-
+    except:
+        return Response({'error':'error getting user data'})
+    
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def toggleFollow(request):
@@ -185,8 +147,9 @@ def toggleFollow(request):
         else:
             user_to_follow.followers.add(my_user)
             return Response({'now_following':True})
-    except Exception as e:
-        return Response({'error': f'error following user: {str(e)}'})
+    except:
+        return Response({'error':'error following user'})
+    
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -213,7 +176,7 @@ def get_users_posts(request, pk):
         data.append(new_post)
 
     return Response(data)
-
+    
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def toggleLike(request):
@@ -234,14 +197,19 @@ def toggleLike(request):
         else:
             post.likes.add(user)
             return Response({'now_liked':True})
-    except Exception as e:
-        return Response({'error': f'failed to like post: {str(e)}'})
+    except:
+        return Response({'error':'failed to like post'})
+    
 
+
+
+    
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_post(request):
     try:
         data = request.data
+
         try:
             user = MyUser.objects.get(username=request.user.username)
         except MyUser.DoesNotExist:
@@ -249,134 +217,26 @@ def create_post(request):
             
         post = Post.objects.create(
             user=user,
-            description=data.get('description', '')
+            description=data['description']
         )
-
-        # Handle image upload
-        if 'image' in request.FILES:
-            post.image = request.FILES['image']
-        
-        # Handle file upload
-        if 'file' in request.FILES:
-            post.file = request.FILES['file']
-        
-        post.save()
 
         serializer = PostSerializer(post, many=False)
 
         return Response(serializer.data)
     
-    except Exception as e:
-        return Response({"error": f"error creating post: {str(e)}"})
-
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def delete_post(request, pk):
-    try:
-        try:
-            post = Post.objects.get(id=pk)
-        except Post.DoesNotExist:
-            return Response({'error': 'post does not exist'})
-        
-        # Check if the user owns the post
-        if post.user.username != request.user.username:
-            return Response({'error': 'you can only delete your own posts'})
-        
-        post.delete()
-        return Response({'success': 'post deleted successfully'})
+    except:
+        return Response({"error":"error creating post"})
     
-    except Exception as e:
-        return Response({"error": f"error deleting post: {str(e)}"})
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def create_comment(request):
-    try:
-        data = request.data
-        
-        try:
-            post = Post.objects.get(id=data['post_id'])
-        except Post.DoesNotExist:
-            return Response({'error': 'post does not exist'})
-        
-        try:
-            user = MyUser.objects.get(username=request.user.username)
-        except MyUser.DoesNotExist:
-            return Response({'error': 'user does not exist'})
-        
-        comment = Comment.objects.create(
-            post=post,
-            user=user,
-            text=data['text']
-        )
-        
-        serializer = CommentSerializer(comment, many=False, context={'request': request})
-        return Response(serializer.data)
-    
-    except Exception as e:
-        return Response({"error": f"error creating comment: {str(e)}"})
 
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def delete_comment(request, pk):
-    try:
-        try:
-            comment = Comment.objects.get(id=pk)
-        except Comment.DoesNotExist:
-            return Response({'error': 'comment does not exist'})
-        
-        # Check if the user owns the comment
-        if comment.user.username != request.user.username:
-            return Response({'error': 'you can only delete your own comments'})
-        
-        comment.delete()
-        return Response({'success': 'comment deleted successfully'})
-    
-    except Exception as e:
-        return Response({"error": f"error deleting comment: {str(e)}"})
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def toggle_comment_like(request):
-    try:
-        try:
-            comment = Comment.objects.get(id=request.data['id'])
-        except Comment.DoesNotExist:
-            return Response({'error': 'comment does not exist'})
-        
-        try:
-            user = MyUser.objects.get(username=request.user.username)
-        except MyUser.DoesNotExist:
-            return Response({'error': 'user does not exist'})
-        
-        if user in comment.likes.all():
-            comment.likes.remove(user)
-            return Response({'now_liked': False})
-        else:
-            comment.likes.add(user)
-            return Response({'now_liked': True})
-    except Exception as e:
-        return Response({'error': f'failed to like comment: {str(e)}'})
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_post_comments(request, pk):
-    try:
-        try:
-            post = Post.objects.get(id=pk)
-        except Post.DoesNotExist:
-            return Response({'error': 'post does not exist'})
-        
-        comments = post.comments.all()
-        serializer = CommentSerializer(comments, many=True, context={'request': request})
-        return Response(serializer.data)
-    
-    except Exception as e:
-        return Response({"error": f"error getting comments: {str(e)}"})
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_posts(request):
+
     try:
         my_user = MyUser.objects.get(username=request.user.username)
     except MyUser.DoesNotExist:
@@ -411,10 +271,11 @@ def search_users(request):
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
 
-# FIX: This was missing - add update_user_details function
+
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_user_details(request):
+
     data = request.data
 
     try:
@@ -430,9 +291,12 @@ def update_user_details(request):
     
     return Response({**serializer.errors, "success": False})
 
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout(request):
+    
     try:
         res = Response()
         res.data = {"success":True}
@@ -440,5 +304,15 @@ def logout(request):
         res.delete_cookie('refresh_token', path='/', samesite='None')
         return res
 
-    except Exception as e:
-        return Response({"success":False, "error": str(e)})
+    except:
+        return Response({"success":False})
+    
+
+
+
+
+
+
+
+
+

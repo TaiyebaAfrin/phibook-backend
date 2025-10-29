@@ -1,10 +1,7 @@
 from rest_framework import serializers
-from .models import MyUser, Post
-
-
+from .models import MyUser, Post, Comment
 
 class UserRegisterSerializer(serializers.ModelSerializer):
-
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -23,7 +20,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return user
 
 class MyUserProfileSerializer(serializers.ModelSerializer):
-
     follower_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
 
@@ -36,17 +32,60 @@ class MyUserProfileSerializer(serializers.ModelSerializer):
     
     def get_following_count(self, obj):
         return obj.following.count()
-    
 
-class PostSerializer(serializers.ModelSerializer):
-
+class CommentSerializer(serializers.ModelSerializer):
     username = serializers.SerializerMethodField()
-    like_count = serializers.SerializerMethodField()
+    profile_image = serializers.SerializerMethodField()
     formatted_date = serializers.SerializerMethodField()
 
     class Meta:
+        model = Comment
+        fields = ['id', 'username', 'profile_image', 'text', 'formatted_date', 'user']
+
+    def get_username(self, obj):
+        return obj.user.username
+
+    def get_profile_image(self, obj):
+        if obj.user.profile_image:
+            return obj.user.profile_image.url
+        return None
+
+    def get_formatted_date(self, obj):
+        return obj.created_at.strftime("%d %b %y")
+
+# class PostSerializer(serializers.ModelSerializer):
+#     username = serializers.SerializerMethodField()
+#     like_count = serializers.SerializerMethodField()
+#     formatted_date = serializers.SerializerMethodField()
+#     comment_count = serializers.SerializerMethodField()
+#     comments = CommentSerializer(many=True, read_only=True)
+
+#     class Meta:
+#         model = Post
+#         fields = ['id', 'username', 'description', 'formatted_date', 'likes', 'like_count', 'comment_count', 'comments']
+
+#     def get_username(self, obj):
+#         return obj.user.username
+    
+#     def get_like_count(self, obj):
+#         return obj.likes.count()
+    
+#     def get_formatted_date(self, obj):
+#         return obj.created_at.strftime("%d %b %y")
+    
+#     def get_comment_count(self, obj):
+#         return obj.comments.count()
+
+class PostSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()
+    formatted_date = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
+    comments = CommentSerializer(many=True, read_only=True)
+
+    class Meta:
         model = Post
-        fields = ['id', 'username', 'description', 'formatted_date', 'likes', 'like_count']
+        fields = ['id', 'username', 'description', 'formatted_date', 'likes', 'like_count', 'comment_count', 'comments']
 
     def get_username(self, obj):
         return obj.user.username
@@ -56,10 +95,16 @@ class PostSerializer(serializers.ModelSerializer):
     
     def get_formatted_date(self, obj):
         return obj.created_at.strftime("%d %b %y")
+    
+    def get_comment_count(self, obj):
+        return obj.comments.count()
         
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser
         fields = ['username', 'bio', 'email', 'profile_image', 'first_name', 'last_name']
 
-
+class CreateCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['text']

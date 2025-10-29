@@ -4,8 +4,11 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from .models import MyUser, Post, Comment
 from sslcommerz_lib import SSLCOMMERZ
-from .serializers import MyUserProfileSerializer, UserRegisterSerializer, PostSerializer, UserSerializer, CommentSerializer, CreateCommentSerializer
-
+from .serializers import MyUserProfileSerializer, UserRegisterSerializer, PostSerializer, UserSerializer, CommentSerializer, CreateCommentSerializer, CreatePostSerializer
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+import os
 
 
 
@@ -205,64 +208,78 @@ def toggleLike(request):
 
 
     
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def create_post(request):
+#     try:
+#         data = request.data
+
+#         try:
+#             user = MyUser.objects.get(username=request.user.username)
+#         except MyUser.DoesNotExist:
+#             return Response({'error':'user does not exist'})
+            
+#         post = Post.objects.create(
+#             user=user,
+#             description=data['description']
+#         )
+
+#         serializer = PostSerializer(post, many=False)
+
+#         return Response(serializer.data)
+    
+#     except:
+#         return Response({"error":"error creating post"})
+    
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_post(request):
     try:
         data = request.data
+        files = request.FILES
 
         try:
             user = MyUser.objects.get(username=request.user.username)
         except MyUser.DoesNotExist:
             return Response({'error':'user does not exist'})
+
+        # Handle image upload
+        image = files.get('image') if files else None
+        
+        # Handle video URL (YouTube)
+        video_url = data.get('video_url', '')
+        
+        # Handle link URL (simple version)
+        link_url = data.get('link_url', '')
+        
+        # For link posts, just use the URL as title
+        link_title = link_url if link_url else None
+
+        serializer = CreatePostSerializer(data=data)
+        if serializer.is_valid():
+            post = Post.objects.create(
+                user=user,
+                description=data['description'],
+                image=image,
+                video_url=video_url,
+                link_url=link_url,
+                link_title=link_title
+            )
             
-        post = Post.objects.create(
-            user=user,
-            description=data['description']
-        )
-
-        serializer = PostSerializer(post, many=False)
-
-        return Response(serializer.data)
+            post_serializer = PostSerializer(post, many=False)
+            return Response(post_serializer.data)
+        else:
+            return Response(serializer.errors)
     
-    except:
+    except Exception as e:
+        print(f"Error creating post: {e}")
         return Response({"error":"error creating post"})
-    
 
 
 
 
 
 
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def get_posts(request):
-
-#     try:
-#         my_user = MyUser.objects.get(username=request.user.username)
-#     except MyUser.DoesNotExist:
-#         return Response({'error':'user does not exist'})
-
-#     posts = Post.objects.all().order_by('-created_at')
-
-#     paginator = PageNumberPagination()
-#     paginator.page_size = 10
-
-#     result_page = paginator.paginate_queryset(posts, request)
-#     serializer = PostSerializer(result_page, many=True)
-
-#     data = []
-
-#     for post in serializer.data:
-#         new_post = {}
-
-#         if my_user.username in post['likes']:
-#             new_post = {**post, 'liked':True}
-#         else:
-#             new_post = {**post, 'liked':False}
-#         data.append(new_post)
-
-#     return paginator.get_paginated_response(data)
 
 
 @api_view(['GET'])

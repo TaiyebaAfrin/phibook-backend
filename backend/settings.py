@@ -1,11 +1,11 @@
 from pathlib import Path
 import os
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
+# import cloudinary
+# import cloudinary.uploader
+# import cloudinary.api
 from decouple import config
 import dj_database_url
-from datetime import timedelta
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -43,17 +43,11 @@ ALLOWED_HOSTS = [".vercel.app", "127.0.0.1", 'https://phibook-backend.vercel.app
 
 AUTH_USER_MODEL = 'base.MyUser'
 
-# SIMPLE_JWT = {
-#     "USER_ID_FIELD":'username'
-# }
-
 SIMPLE_JWT = {
-    "USER_ID_FIELD":'username',
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+    "USER_ID_FIELD":'username'
 }
+
+
 
 # Application definition
 
@@ -64,8 +58,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary',
-    'cloudinary_storage',
+    # 'cloudinary',
+    # 'cloudinary_storage',
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',

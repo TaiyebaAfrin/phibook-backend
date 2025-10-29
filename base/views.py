@@ -77,21 +77,60 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         except Exception as e:
             return Response({'success': False, 'error': str(e)})
 
+# class CustomTokenRefreshView(TokenRefreshView):
+#     def post(self, request, *args, **kwargs):
+#         try:
+#             refresh_token = request.COOKIES.get('refresh_token')
+#             request.data['refresh'] = refresh_token
+
+#             response = super().post(request, *args, **kwargs)
+#             tokens = response.data
+
+#             access_token = tokens['access']
+            
+#             res = Response()
+
+#             res.data = {
+#                 "success": True
+#             }
+
+#             res.set_cookie(
+#                 key='access_token',
+#                 value=access_token,
+#                 httponly=True,
+#                 secure=True,
+#                 samesite='None',
+#                 path='/'
+#             )
+
+#             return res
+#         except Exception as e:
+#             return Response({'success': False, 'error': str(e)})
+
+
 class CustomTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         try:
             refresh_token = request.COOKIES.get('refresh_token')
+            
+            if not refresh_token:
+                return Response({'success': False, 'error': 'No refresh token provided'}, status=401)
+            
+            # Set the refresh token in request data
             request.data['refresh'] = refresh_token
 
             response = super().post(request, *args, **kwargs)
+            
+            if response.status_code != 200:
+                return Response({'success': False, 'error': 'Token refresh failed'}, status=401)
+                
             tokens = response.data
-
             access_token = tokens['access']
             
             res = Response()
-
             res.data = {
-                "success": True
+                "success": True,
+                "message": "Token refreshed successfully"
             }
 
             res.set_cookie(
@@ -99,13 +138,16 @@ class CustomTokenRefreshView(TokenRefreshView):
                 value=access_token,
                 httponly=True,
                 secure=True,
-                samesite='None',
-                path='/'
+                samesite='Lax',
+                path='/',
+                max_age=60 * 60,  # 1 hour
             )
 
             return res
         except Exception as e:
-            return Response({'success': False, 'error': str(e)})
+            return Response({'success': False, 'error': str(e)}, status=401)
+
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

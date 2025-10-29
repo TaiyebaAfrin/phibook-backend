@@ -5,6 +5,7 @@ import cloudinary.uploader
 import cloudinary.api
 from decouple import config
 import dj_database_url
+from datetime import timedelta
 
 
 
@@ -21,19 +22,6 @@ SECRET_KEY = 'django-insecure-nfzm9aiuu1-hpi7l2i(x^+9817!l+*d!35dhd_k8cl@5zqw*qf
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get('SUPABASE_DB_NAME'),
-#         'USER': os.environ.get('SUPABASE_DB_USER'),
-#         'PASSWORD': os.environ.get('SUPABASE_DB_PASSWORD'),
-#         'HOST': os.environ.get('SUPABASE_DB_HOST'),
-#         'PORT': os.environ.get('SUPABASE_DB_PORT', '5432'),
-#     }
-# }
-
-
-
 
 DEBUG = True
 
@@ -44,7 +32,11 @@ ALLOWED_HOSTS = [".vercel.app", "127.0.0.1", 'https://phibook-backend.vercel.app
 AUTH_USER_MODEL = 'base.MyUser'
 
 SIMPLE_JWT = {
-    "USER_ID_FIELD":'username'
+    "USER_ID_FIELD":'username',
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
 
@@ -68,16 +60,16 @@ INSTALLED_APPS = [
 ]
 
 
-# Cloudinary configuration
-cloudinary.config(
-    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME', 'dgumbh4a9'),
-    api_key=os.environ.get('CLOUDINARY_API_KEY', '523797784699343'),
-    api_secret=os.environ.get('CLOUDINARY_API_SECRET', '7_GEvn1f55gImfDZw7qmki56LrE'),
-    secure=True
-)
+# # Cloudinary configuration
+# cloudinary.config(
+#     cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME', 'dgumbh4a9'),
+#     api_key=os.environ.get('CLOUDINARY_API_KEY', '523797784699343'),
+#     api_secret=os.environ.get('CLOUDINARY_API_SECRET', '7_GEvn1f55gImfDZw7qmki56LrE'),
+#     secure=True
+# )
 
-# Set Cloudinary as the default file storage
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# # Set Cloudinary as the default file storage
+# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 
@@ -138,26 +130,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-
-
-# # Read from environment variable
-# DATABASES = {
-#     'default': dj_database_url.config(
-#         default=os.environ.get('DATABASE_URL'),
-#         conn_max_age=600,
-#         conn_health_checks=True,
-#     )
-# }
 
 
 # #support
@@ -170,22 +142,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'postgres',
-#         'USER': "postgres.gmjfcwlvzssmrmemciat",
-#         'PASSWORD': 'NkvVEW9hzsK5z3iC',
-#         'HOST': 'aws-1-us-east-1.pooler.supabase.com',
-#         'PORT': 6543,
-#         'OPTIONS': {
-#             'sslmode': 'require',
-#             'sslmode': 'verify-full',
-#         },
-#         'CONN_MAX_AGE': 600,  # Helpful for serverless
-#     }
-# }
 
 
 DATABASES = {
@@ -222,26 +178,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-#cloudinary Configuration
-
-
-# cloudinary.config(
-#     cloud_name=config('cloud_name'),
-#     api_key=config('cloudinary_api_key'),
-#     api_secret=config('api_secret'),
-#     secure=True
-# )
-
-
-cloudinary.config(
-    cloud_name=os.environ.get('cloud_name', 'dgumbh4a9'),
-    api_key=os.environ.get('cloudinary_api_key', '523797784699343'),
-    api_secret=os.environ.get('api_secret', '7_GEvn1f55gImfDZw7qmki56LrE'),
-    secure=True
-)
-
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 LANGUAGE_CODE = 'en-us'
@@ -261,9 +197,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+
+
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static'),
+# ]
 
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"

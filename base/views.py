@@ -1,14 +1,12 @@
+from rest_framework import permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from .models import MyUser, Post, Comment
+from .models import MyUser, Post
+from .serializers import MyUserProfileSerializer, UserRegisterSerializer, PostSerializer, UserSerializer
 from sslcommerz_lib import SSLCOMMERZ
-from .serializers import MyUserProfileSerializer, UserRegisterSerializer, PostSerializer, UserSerializer, CommentSerializer, CreateCommentSerializer, CreatePostSerializer
-import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urlparse
-import os
+
 
 
 
@@ -26,6 +24,7 @@ def auhtenticated(request):
     
 
 @api_view(['POST'])
+@permission_classes([permissions.AllowAny])
 def register(request):
     serializer = UserRegisterSerializer(data=request.data)
     if serializer.is_valid():
@@ -208,74 +207,29 @@ def toggleLike(request):
 
 
     
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def create_post(request):
-#     try:
-#         data = request.data
-
-#         try:
-#             user = MyUser.objects.get(username=request.user.username)
-#         except MyUser.DoesNotExist:
-#             return Response({'error':'user does not exist'})
-            
-#         post = Post.objects.create(
-#             user=user,
-#             description=data['description']
-#         )
-
-#         serializer = PostSerializer(post, many=False)
-
-#         return Response(serializer.data)
-    
-#     except:
-#         return Response({"error":"error creating post"})
-    
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_post(request):
     try:
         data = request.data
-        files = request.FILES
 
         try:
             user = MyUser.objects.get(username=request.user.username)
         except MyUser.DoesNotExist:
             return Response({'error':'user does not exist'})
-
-        # Handle image upload
-        image = files.get('image') if files else None
-        
-        # Handle video URL (YouTube)
-        video_url = data.get('video_url', '')
-        
-        # Handle link URL (simple version)
-        link_url = data.get('link_url', '')
-        
-        # For link posts, just use the URL as title
-        link_title = link_url if link_url else None
-
-        serializer = CreatePostSerializer(data=data)
-        if serializer.is_valid():
-            post = Post.objects.create(
-                user=user,
-                description=data['description'],
-                image=image,
-                video_url=video_url,
-                link_url=link_url,
-                link_title=link_title
-            )
             
-            post_serializer = PostSerializer(post, many=False)
-            return Response(post_serializer.data)
-        else:
-            return Response(serializer.errors)
+        post = Post.objects.create(
+            user=user,
+            description=data['description']
+        )
+
+        serializer = PostSerializer(post, many=False)
+
+        return Response(serializer.data)
     
-    except Exception as e:
-        print(f"Error creating post: {e}")
+    except:
         return Response({"error":"error creating post"})
-
-
+    
 
 
 
@@ -285,6 +239,7 @@ def create_post(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_posts(request):
+
     try:
         my_user = MyUser.objects.get(username=request.user.username)
     except MyUser.DoesNotExist:
@@ -310,8 +265,6 @@ def get_posts(request):
         data.append(new_post)
 
     return paginator.get_paginated_response(data)
-
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -362,83 +315,9 @@ def logout(request):
 
 
 
-#comments
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def create_comment(request):
-    try:
-        data = request.data
-
-        try:
-            post = Post.objects.get(id=data['post_id'])
-        except Post.DoesNotExist:
-            return Response({'error': 'post does not exist'})
-
-        try:
-            user = MyUser.objects.get(username=request.user.username)
-        except MyUser.DoesNotExist:
-            return Response({'error': 'user does not exist'})
-
-        serializer = CreateCommentSerializer(data=data)
-        if serializer.is_valid():
-            comment = Comment.objects.create(
-                post=post,
-                user=user,
-                text=data['text']
-            )
-            comment_serializer = CommentSerializer(comment)
-            return Response(comment_serializer.data)
-        else:
-            return Response(serializer.errors)
-
-    except Exception as e:
-        return Response({"error": "error creating comment"})
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_post_comments(request, post_id):
-    try:
-        try:
-            post = Post.objects.get(id=post_id)
-        except Post.DoesNotExist:
-            return Response({'error': 'post does not exist'})
-
-        comments = post.comments.all()
-        serializer = CommentSerializer(comments, many=True)
-        return Response(serializer.data)
-
-    except Exception as e:
-        return Response({"error": "error fetching comments"})
-
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def delete_comment(request, comment_id):
-    try:
-        try:
-            comment = Comment.objects.get(id=comment_id)
-        except Comment.DoesNotExist:
-            return Response({'error': 'comment does not exist'})
-
-        # Check if the current user owns the comment
-        if comment.user.username != request.user.username:
-            return Response({'error': 'not authorized to delete this comment'})
-
-        comment.delete()
-        return Response({'success': True})
-
-    except Exception as e:
-        return Response({"error": "error deleting comment"})
 
 
 
-
-
-
-
-
-#sslcommerce
 
 @api_view(['POST'])
 def initiate_payment(request):

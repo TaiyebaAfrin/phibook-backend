@@ -5,10 +5,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from django.core.paginator import EmptyPage
-from django.db.models import Prefetch
+from django.shortcuts import get_object_or_404
 
-from .models import MyUser, Post
-from .serializers import MyUserProfileSerializer, UserRegisterSerializer, PostSerializer, UserSerializer
+from .models import MyUser, Post, Comment
+from .serializers import MyUserProfileSerializer, UserRegisterSerializer, PostSerializer, UserSerializer, CommentSerializer
 
 
 
@@ -158,42 +158,6 @@ def toggleFollow(request):
 
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_users_posts(request, pk):
-    try:
-        try:
-            user = MyUser.objects.get(username=pk)
-            my_user = MyUser.objects.get(username=request.user.username)
-        except MyUser.DoesNotExist:
-            return Response(
-                {'error': 'User does not exist'}, 
-                status=status.HTTP_404_NOT_FOUND
-            )
-        
-        # Optimized query
-        posts = user.posts.select_related('user').prefetch_related('likes').order_by('-created_at')
-
-        serializer = PostSerializer(posts, many=True)
-
-        data = []
-        for post_data in serializer.data:
-            # Check if current user liked this post
-            post_obj = next((p for p in posts if p.id == post_data['id']), None)
-            liked = post_obj and my_user in post_obj.likes.all()
-            
-            new_post = {**post_data, 'liked': liked}
-            data.append(new_post)
-
-        return Response(data)
-
-    except Exception as e:
-        print(f"Error in get_users_posts: {str(e)}")
-        return Response(
-            {'error': 'Failed to fetch user posts'}, 
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
-    
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -248,61 +212,6 @@ def create_post(request):
 
 
 
-
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_posts(request):
-    try:
-        # Get page number from query params, default to 1
-        page_number = request.GET.get('page', 1)
-        
-        try:
-            my_user = MyUser.objects.get(username=request.user.username)
-        except MyUser.DoesNotExist:
-            return Response(
-                {'error': 'User does not exist'}, 
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        # Optimize query with select_related and prefetch_related
-        posts = Post.objects.select_related('user').prefetch_related('likes').order_by('-created_at')
-
-        # Pagination
-        paginator = PageNumberPagination()
-        paginator.page_size = 10
-        
-        try:
-            result_page = paginator.paginate_queryset(posts, request)
-        except EmptyPage:
-            return Response(
-                {'error': 'Page not found'}, 
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        serializer = PostSerializer(result_page, many=True)
-
-        # Optimize liked check
-        data = []
-        for post_data in serializer.data:
-            # Check if current user liked this post
-            post_obj = next((p for p in result_page if p.id == post_data['id']), None)
-            liked = post_obj and my_user in post_obj.likes.all()
-            
-            new_post = {**post_data, 'liked': liked}
-            data.append(new_post)
-
-        response = paginator.get_paginated_response(data)
-        return response
-
-    except Exception as e:
-        print(f"Error in get_posts: {str(e)}")
-        return Response(
-            {'error': 'Failed to fetch posts'}, 
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def search_users(request):
@@ -347,6 +256,224 @@ def logout(request):
     except:
         return Response({"success":False})
     
+
+
+
+
+#######
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_comment(request):
+    try:
+        data = request.data
+        
+        try:
+            post = Post.objects.get(id=data['post_id'])
+        except Post.DoesNotExist:
+            return Response(
+                {'error': 'Post does not exist'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        comment = Comment.objects.create(
+            post=post,
+            user=request.user,
+            text=data['text']
+        )
+        
+        serializer = CommentSerializer(comment, context={'request': request})
+        return Response(serializer.data)
+    
+    except Exception as e:
+        print(f"Error creating comment: {str(e)}")
+        return Response(
+            {'error': 'Failed to create comment'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_comments(request, post_id):
+    try:
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return Response(
+                {'error': 'Post does not exist'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        comments = post.comments.select_related('user').order_by('-created_at')
+        serializer = CommentSerializer(comments, many=True, context={'request': request})
+        return Response(serializer.data)
+    
+    except Exception as e:
+        print(f"Error fetching comments: {str(e)}")
+        return Response(
+            {'error': 'Failed to fetch comments'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_comment(request, comment_id):
+    try:
+        try:
+            comment = Comment.objects.get(id=comment_id)
+        except Comment.DoesNotExist:
+            return Response(
+                {'error': 'Comment does not exist'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Check if user can delete (owner of comment or owner of post)
+        if comment.user != request.user and comment.post.user != request.user:
+            return Response(
+                {'error': 'You do not have permission to delete this comment'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        comment.delete()
+        return Response({'success': True})
+    
+    except Exception as e:
+        print(f"Error deleting comment: {str(e)}")
+        return Response(
+            {'error': 'Failed to delete comment'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_post(request, post_id):
+    try:
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return Response(
+                {'error': 'Post does not exist'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Check if user is the owner of the post
+        if post.user != request.user:
+            return Response(
+                {'error': 'You can only delete your own posts'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        post.delete()
+        return Response({'success': True})
+    
+    except Exception as e:
+        print(f"Error deleting post: {str(e)}")
+        return Response(
+            {'error': 'Failed to delete post'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+# Update get_posts and get_users_posts to include serializer context
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_posts(request):
+    try:
+        page_number = request.GET.get('page', 1)
+        
+        try:
+            my_user = MyUser.objects.get(username=request.user.username)
+        except MyUser.DoesNotExist:
+            return Response(
+                {'error': 'User does not exist'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        posts = Post.objects.select_related('user').prefetch_related('likes', 'comments').order_by('-created_at')
+
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        
+        try:
+            result_page = paginator.paginate_queryset(posts, request)
+        except EmptyPage:
+            return Response(
+                {'error': 'Page not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = PostSerializer(result_page, many=True, context={'request': request})
+
+        data = []
+        for post_data in serializer.data:
+            post_obj = next((p for p in result_page if p.id == post_data['id']), None)
+            liked = post_obj and my_user in post_obj.likes.all()
+            
+            new_post = {**post_data, 'liked': liked}
+            data.append(new_post)
+
+        response = paginator.get_paginated_response(data)
+        return response
+
+    except Exception as e:
+        print(f"Error in get_posts: {str(e)}")
+        return Response(
+            {'error': 'Failed to fetch posts'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_users_posts(request, pk):
+    try:
+        try:
+            user = MyUser.objects.get(username=pk)
+            my_user = MyUser.objects.get(username=request.user.username)
+        except MyUser.DoesNotExist:
+            return Response(
+                {'error': 'User does not exist'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        posts = user.posts.select_related('user').prefetch_related('likes', 'comments').order_by('-created_at')
+        serializer = PostSerializer(posts, many=True, context={'request': request})
+
+        data = []
+        for post_data in serializer.data:
+            post_obj = next((p for p in posts if p.id == post_data['id']), None)
+            liked = post_obj and my_user in post_obj.likes.all()
+            
+            new_post = {**post_data, 'liked': liked}
+            data.append(new_post)
+
+        return Response(data)
+
+    except Exception as e:
+        print(f"Error in get_users_posts: {str(e)}")
+        return Response(
+            {'error': 'Failed to fetch user posts'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

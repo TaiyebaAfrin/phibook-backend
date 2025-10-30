@@ -1,19 +1,13 @@
 from django.urls import path
-
 from django.conf import settings
 from django.conf.urls.static import static
 
-
-
-
-
-
-from .views import get_user_profile_data, CustomTokenObtainPairView, CustomTokenRefreshView, register, auhtenticated, toggleFollow, get_users_posts, toggleLike, create_post, get_posts, search_users, logout, update_user_details
-#intiate_payment
-
-
-
-
+from .views import (
+    get_user_profile_data, CustomTokenObtainPairView, CustomTokenRefreshView, 
+    register, auhtenticated, toggleFollow, get_users_posts, toggleLike, 
+    create_post, get_posts, search_users, logout, update_user_details,
+    create_comment, get_comments, delete_comment, delete_post
+)
 
 urlpatterns = [
     path('user_data/<str:pk>/', get_user_profile_data),
@@ -21,7 +15,7 @@ urlpatterns = [
     path('token/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
     path('register/', register),
     path('authenticated/', auhtenticated),
-    path('toggle_follow/', toggleFollow ),
+    path('toggle_follow/', toggleFollow),
     path('posts/<str:pk>/', get_users_posts),
     path('toggleLike/', toggleLike),
     path('create_post/', create_post),
@@ -29,6 +23,17 @@ urlpatterns = [
     path('search/', search_users),
     path('update_user/', update_user_details),
     path('logout/', logout),
+    
+    # Comment routes
+    path('create_comment/', create_comment),
+    path('comments/<int:post_id>/', get_comments),
+    path('delete_comment/<int:comment_id>/', delete_comment),
+    
+    # Delete routes
+    path('delete_post/<int:post_id>/', delete_post),
+
+
+    #payments
     #path("payment/initiate/", intiate_payment, name="intiate-payment"),
 
 

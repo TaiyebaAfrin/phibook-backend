@@ -1,6 +1,6 @@
 from pathlib import Path
 import os
-import cloudinary
+#import cloudinary
 from decouple import config
 import dj_database_url
 from datetime import timedelta
@@ -172,15 +172,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Cloudinary Configuration
-cloudinary.config(
-    cloud_name=os.environ.get('cloud_name', 'dgumbh4a9'),
-    api_key=os.environ.get('cloudinary_api_key', '523797784699343'),
-    api_secret=os.environ.get('api_secret', '7_GEvn1f55gImfDZw7qmki56LrE'),
-    secure=True
-)
+# # Cloudinary Configuration
+# cloudinary.config(
+#     cloud_name=os.environ.get('cloud_name', 'dgumbh4a9'),
+#     api_key=os.environ.get('cloudinary_api_key', '523797784699343'),
+#     api_secret=os.environ.get('api_secret', '7_GEvn1f55gImfDZw7qmki56LrE'),
+#     secure=True
+# )
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'

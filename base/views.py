@@ -1,12 +1,14 @@
-from rest_framework import permissions
+from sslcommerz_lib import SSLCOMMERZ
+from rest_framework import permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+from django.core.paginator import EmptyPage
+from django.db.models import Prefetch
+
 from .models import MyUser, Post
 from .serializers import MyUserProfileSerializer, UserRegisterSerializer, PostSerializer, UserSerializer
-from sslcommerz_lib import SSLCOMMERZ
-
 
 
 
@@ -154,32 +156,45 @@ def toggleFollow(request):
         return Response({'error':'error following user'})
     
 
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_users_posts(request, pk):
     try:
-        user = MyUser.objects.get(username=pk)
-        my_user = MyUser.objects.get(username=request.user.username)
-    except MyUser.DoesNotExist:
-        return Response({'error':'user does not exist'})
+        try:
+            user = MyUser.objects.get(username=pk)
+            my_user = MyUser.objects.get(username=request.user.username)
+        except MyUser.DoesNotExist:
+            return Response(
+                {'error': 'User does not exist'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Optimized query
+        posts = user.posts.select_related('user').prefetch_related('likes').order_by('-created_at')
+
+        serializer = PostSerializer(posts, many=True)
+
+        data = []
+        for post_data in serializer.data:
+            # Check if current user liked this post
+            post_obj = next((p for p in posts if p.id == post_data['id']), None)
+            liked = post_obj and my_user in post_obj.likes.all()
+            
+            new_post = {**post_data, 'liked': liked}
+            data.append(new_post)
+
+        return Response(data)
+
+    except Exception as e:
+        print(f"Error in get_users_posts: {str(e)}")
+        return Response(
+            {'error': 'Failed to fetch user posts'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
     
-    posts = user.posts.all().order_by('-created_at')
 
-    serializer = PostSerializer(posts, many=True)
-
-    data = []
-
-    for post in serializer.data:
-        new_post = {}
-
-        if my_user.username in post['likes']:
-            new_post = {**post, 'liked':True}
-        else:
-            new_post = {**post, 'liked':False}
-        data.append(new_post)
-
-    return Response(data)
-    
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def toggleLike(request):
@@ -239,32 +254,54 @@ def create_post(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_posts(request):
-
     try:
-        my_user = MyUser.objects.get(username=request.user.username)
-    except MyUser.DoesNotExist:
-        return Response({'error':'user does not exist'})
+        # Get page number from query params, default to 1
+        page_number = request.GET.get('page', 1)
+        
+        try:
+            my_user = MyUser.objects.get(username=request.user.username)
+        except MyUser.DoesNotExist:
+            return Response(
+                {'error': 'User does not exist'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-    posts = Post.objects.all().order_by('-created_at')
+        # Optimize query with select_related and prefetch_related
+        posts = Post.objects.select_related('user').prefetch_related('likes').order_by('-created_at')
 
-    paginator = PageNumberPagination()
-    paginator.page_size = 10
+        # Pagination
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        
+        try:
+            result_page = paginator.paginate_queryset(posts, request)
+        except EmptyPage:
+            return Response(
+                {'error': 'Page not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-    result_page = paginator.paginate_queryset(posts, request)
-    serializer = PostSerializer(result_page, many=True)
+        serializer = PostSerializer(result_page, many=True)
 
-    data = []
+        # Optimize liked check
+        data = []
+        for post_data in serializer.data:
+            # Check if current user liked this post
+            post_obj = next((p for p in result_page if p.id == post_data['id']), None)
+            liked = post_obj and my_user in post_obj.likes.all()
+            
+            new_post = {**post_data, 'liked': liked}
+            data.append(new_post)
 
-    for post in serializer.data:
-        new_post = {}
+        response = paginator.get_paginated_response(data)
+        return response
 
-        if my_user.username in post['likes']:
-            new_post = {**post, 'liked':True}
-        else:
-            new_post = {**post, 'liked':False}
-        data.append(new_post)
-
-    return paginator.get_paginated_response(data)
+    except Exception as e:
+        print(f"Error in get_posts: {str(e)}")
+        return Response(
+            {'error': 'Failed to fetch posts'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

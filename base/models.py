@@ -1,11 +1,11 @@
+# base/models.py - CORRECTED
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from cloudinary.models import CloudinaryField 
 
 class MyUser(AbstractUser):
     username = models.CharField(max_length=50, unique=True, primary_key=True)
-    bio = models.CharField(max_length=500)
-    profile_image = CloudinaryField('profile_image', folder='profile_images/', blank=True, null=True)
+    bio = models.CharField(max_length=500, blank=True, default='')
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     followers = models.ManyToManyField('self', symmetrical=False, related_name='following', blank=True)
 
     def __str__(self):
@@ -16,3 +16,6 @@ class Post(models.Model):
     description = models.CharField(max_length=400)
     created_at = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(MyUser, related_name='post_likes', blank=True)
+
+    def __str__(self):
+        return f"Post by {self.user.username} - {self.created_at}"

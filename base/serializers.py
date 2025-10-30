@@ -1,8 +1,8 @@
+# base/serializers.py - CORRECTED
 from rest_framework import serializers
-from .models import MyUser, Post
+from .models import MyUser, Post  # Remove PostSerializer from here
 
 class UserRegisterSerializer(serializers.ModelSerializer):
-
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -21,7 +21,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return user
 
 class MyUserProfileSerializer(serializers.ModelSerializer):
-
     follower_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
 
@@ -34,11 +33,9 @@ class MyUserProfileSerializer(serializers.ModelSerializer):
     
     def get_following_count(self, obj):
         return obj.following.count()
-    
 
 class PostSerializer(serializers.ModelSerializer):
-
-    username = serializers.SerializerMethodField()
+    username = serializers.CharField(source='user.username', read_only=True)
     like_count = serializers.SerializerMethodField()
     formatted_date = serializers.SerializerMethodField()
 
@@ -46,15 +43,12 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['id', 'username', 'description', 'formatted_date', 'likes', 'like_count']
 
-    def get_username(self, obj):
-        return obj.user.username
-    
     def get_like_count(self, obj):
         return obj.likes.count()
     
     def get_formatted_date(self, obj):
         return obj.created_at.strftime("%d %b %y")
-        
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser

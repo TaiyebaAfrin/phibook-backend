@@ -94,6 +94,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    'http://127.0.0.1:8000',
     "https://phibook-frontend.vercel.app",
 ]
 
@@ -114,6 +115,7 @@ CORS_ALLOW_HEADERS = [
 # Add these for better cookie handling
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
+    'http://127.0.0.1:8000',
     "https://phibook-frontend.vercel.app",
 ]
 

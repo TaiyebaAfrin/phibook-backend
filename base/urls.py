@@ -6,7 +6,7 @@ from .views import (
     get_user_profile_data, CustomTokenObtainPairView, CustomTokenRefreshView, 
     register, auhtenticated, toggleFollow, get_users_posts, toggleLike, 
     create_post, get_posts, search_users, logout, update_user_details,
-    create_comment, get_comments, delete_comment, delete_post
+    create_comment, get_comments, delete_comment, delete_post, initiate_payment, payment_cancel, payment_fail, payment_success,
 )
 
 urlpatterns = [
@@ -34,7 +34,10 @@ urlpatterns = [
 
 
     #payments
-    #path("payment/initiate/", intiate_payment, name="intiate-payment"),
+    path("payment/initiate/", initiate_payment, name="intiate-payment"),
+    path("payment/success/", payment_success, name="payment-success"),
+    path("payment/fail/", payment_fail, name="payment-fail"),
+    path("payment/cancel/", payment_cancel, name="payment-cancel"),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -9,7 +9,9 @@ from django.shortcuts import get_object_or_404
 
 from .models import MyUser, Post, Comment
 from .serializers import MyUserProfileSerializer, UserRegisterSerializer, PostSerializer, UserSerializer, CommentSerializer
-
+import uuid
+from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
 
 
 
@@ -483,7 +485,7 @@ def get_users_posts(request, pk):
 
 
 
-@api_view(['POST'])
+# @api_view(['POST'])
 def initiate_payment(request):
     settings = { 'store_id': 'phibo68de791f6dac2', 'store_pass': 'phibo68de791f6dac2@ssl', 'issandbox': True }
     sslcz = SSLCOMMERZ(settings)
@@ -491,9 +493,9 @@ def initiate_payment(request):
     post_body['total_amount'] = 2000.00
     post_body['currency'] = "BDT"
     post_body['tran_id'] = "12345"
-    post_body['success_url'] = "your success url"
-    post_body['fail_url'] = "your fail url"
-    post_body['cancel_url'] = "your cancel url"
+    post_body['success_url'] = "https://phibook-backend.vercel.app/api/v1/payment/success/"
+    post_body['fail_url'] = "https://phibook-backend.vercel.app/api/v1/payment/fail/"
+    post_body['cancel_url'] ="https://phibook-backend.vercel.app/api/v1/payment/cancel/"
     post_body['emi_option'] = 0
     post_body['cus_name'] = "test"
     post_body['cus_email'] = "test@test.com"
@@ -504,13 +506,38 @@ def initiate_payment(request):
     post_body['shipping_method'] = "NO"
     post_body['multi_card_name'] = ""
     post_body['num_of_item'] = 1
-    post_body['product_name'] = "Test"
-    post_body['product_category'] = "Test Category"
+    post_body['product_name'] = "Pro Subscription"
+    post_body['product_category'] = "Subscription"
     post_body['product_profile'] = "general"
 
-
-
-
     response = sslcz.createSession(post_body) # API response
-    print(response)
-    return Response({"payment_url": "dummy_url"})
+    # print(response)
+    # return Response({"payment_url": "dummy_url"})
+    return redirect(response['GatewayPageURL'])
+
+
+
+
+
+
+
+
+
+# @api_view(['POST'])
+def payment_success(request):
+    print("Inside success")
+    return HttpResponseRedirect("https://phibook-backend.vercel.app/api/v1/payment/success/")
+
+
+
+# @api_view(['POST'])
+def payment_cancel(request):
+    print("Inside fail")
+    return HttpResponseRedirect("https://phibook-backend.vercel.app/api/v1/payment/fail/")
+
+
+# @api_view(['POST'])
+def payment_fail(request):
+    print("Inside cancel")
+    return HttpResponseRedirect("https://phibook-backend.vercel.app/api/v1/payment/cancel/")
+

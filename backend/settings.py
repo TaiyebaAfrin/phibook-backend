@@ -93,7 +93,7 @@ MIDDLEWARE = [
 # FIXED CORS Settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    # "http://127.0.0.1:3000",
     'http://127.0.0.1:8000',
     "https://phibook-frontend.vercel.app",
     "https://phibook-backend.vercel.app",
@@ -118,6 +118,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     'http://127.0.0.1:8000',
     "https://phibook-frontend.vercel.app",
+    "https://phibook-backend.vercel.app",
 ]
 
 SESSION_COOKIE_SAMESITE = 'None'
@@ -200,10 +201,21 @@ STATICFILES_DIRS = [
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+# # Email Configuration
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = "smtp.gmail.com"
+# EMAIL_USE_TLS = True
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'taiyebaafrin32@gmail.com'
+# EMAIL_HOST_PASSWORD = 'xtdo kgbz joum fzrn'
+
+
+
+# EMAIL_HOST=smtp.gmail.com
+# EMAIL_HOST_PASSWORD=xtdo kgbz joum fzrn
+# EMAIL_HOST_USER=taiyebaafrin32@gmail.com 
+# EMAIL_PORT=587
+# EMAIL_USE_TLS=True
+
+# BACKEND_URL = config("BACKEND_URL")
+# FRONTEND_URL = config("FRONTEND_URL")

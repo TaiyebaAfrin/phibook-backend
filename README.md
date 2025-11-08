@@ -16,9 +16,9 @@ Phibook is a modern social media platform built with Django REST Framework backe
 
 ### Subscription Plans
 
-- **Basic Plan** - $9.99/month - Perfect for getting started
+
 - **Pro Plan** - $19.99/month - Great for professionals
-- **Enterprise Plan** - $49.99/month - For large organizations
+
 
 ## 🛠 Tech Stack
 
